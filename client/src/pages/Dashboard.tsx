@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Lock, Users, MapPin, Clock, Star } from "lucide-react";
+import { Lock, Users, MapPin, Clock, Star, UserPlus } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 
@@ -51,8 +52,15 @@ export default function Dashboard() {
           <h2 className="text-2xl font-display font-bold text-white">Cases</h2>
           <p className="text-muted-foreground text-sm">Select your next assignment.</p>
         </div>
-        <div className="h-10 w-10 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center text-primary font-bold">
-          XP
+        <div className="flex gap-2">
+          <Link href="/join-room">
+            <Button size="sm" variant="outline" className="h-9 border-white/10 bg-white/5 hover:bg-white/10 text-xs">
+              <UserPlus className="w-3 h-3 mr-2" /> Join Party
+            </Button>
+          </Link>
+          <div className="h-9 px-3 rounded-md bg-primary/20 border border-primary/50 flex items-center justify-center text-primary font-bold text-xs">
+            LVL 5
+          </div>
         </div>
       </div>
 

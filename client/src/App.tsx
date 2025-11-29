@@ -8,6 +8,9 @@ import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import StoryDetail from "@/pages/StoryDetail";
 import StoryPlayer from "@/pages/StoryPlayer";
+import CreateRoom from "@/pages/CreateRoom";
+import JoinRoom from "@/pages/JoinRoom";
+import Profile from "@/pages/Profile";
 
 function Router() {
   return (
@@ -17,6 +20,9 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/story/:id" component={StoryDetail} />
         <Route path="/play/:id" component={StoryPlayer} />
+        <Route path="/create-room" component={CreateRoom} />
+        <Route path="/join-room" component={JoinRoom} />
+        <Route path="/profile" component={Profile} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
