@@ -1,25 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell, Volume2, Globe, LogOut, ChevronRight, CreditCard, Shield, Server } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { API_BASE_URL, setApiUrl } from "@/lib/api";
-import { useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function Profile() {
   const [, setLocation] = useLocation();
-  const [apiUrl, setApiUrlState] = useState(API_BASE_URL);
-  const [isEditingApi, setIsEditingApi] = useState(false);
 
   const handleLogout = () => {
     setLocation("/");
-  };
-
-  const handleSaveApi = () => {
-    setApiUrl(apiUrl);
-    setIsEditingApi(false);
   };
 
   return (
@@ -45,35 +36,16 @@ export default function Profile() {
       <div className="space-y-6">
         
         <div className="space-y-3">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider ml-1">Developer Settings</h3>
-          <Card className="bg-card/50 border-white/5 divide-y divide-white/5">
-            <div className="p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-white">
-                  <Server className="w-5 h-5 text-secondary" />
-                  <span>Backend API URL</span>
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="h-8 text-xs text-muted-foreground hover:text-white"
-                  onClick={() => isEditingApi ? handleSaveApi() : setIsEditingApi(true)}
-                >
-                  {isEditingApi ? "Save" : "Edit"}
-                </Button>
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider ml-1">Developer Info</h3>
+          <Card className="bg-card/50 border-white/5">
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3 text-white">
+                <Server className="w-5 h-5 text-secondary" />
+                <span>Backend Connected</span>
               </div>
-              
-              {isEditingApi ? (
-                <Input 
-                  value={apiUrl}
-                  onChange={(e) => setApiUrlState(e.target.value)}
-                  className="h-9 bg-black/50 border-white/10 text-xs font-mono"
-                />
-              ) : (
-                <p className="text-xs font-mono text-muted-foreground break-all bg-black/30 p-2 rounded border border-white/5">
-                  {API_BASE_URL}
-                </p>
-              )}
+              <span className="text-xs font-mono text-muted-foreground bg-black/30 px-2 py-1 rounded">
+                {API_BASE_URL}
+              </span>
             </div>
           </Card>
         </div>

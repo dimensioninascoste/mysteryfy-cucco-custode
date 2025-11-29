@@ -1,12 +1,7 @@
 import { useLocation } from "wouter";
 
-// Default from specs, but can be overridden
-export const API_BASE_URL = localStorage.getItem("mysteryfy_api_url") || "https://dev-api.mysteryfy.com";
-
-export const setApiUrl = (url: string) => {
-  localStorage.setItem("mysteryfy_api_url", url);
-  window.location.reload();
-};
+// Updated with the real backend URL provided by the user
+export const API_BASE_URL = "https://gta.mysteryfy.com";
 
 // Helper for headers
 const getHeaders = () => {
