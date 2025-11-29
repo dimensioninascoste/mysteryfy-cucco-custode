@@ -1,18 +1,32 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useSearch } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings, Map, Camera, Volume2, Menu } from "lucide-react";
+import { ArrowLeft, Settings, Map, Camera, Volume2, Menu, Terminal } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function StoryPlayer() {
   const { id } = useParams();
+  const search = useSearch();
+  const params = new URLSearchParams(search);
+  const token = params.get("token");
+  const userId = params.get("userId");
+
   const [loading, setLoading] = useState(true);
   const [textIndex, setTextIndex] = useState(0);
+  const [showDebug, setShowDebug] = useState(!!token); // Show debug if token exists
+  const [authStatus, setAuthStatus] = useState<"verifying" | "success" | "failed">("verifying");
 
   // Mock "Game Engine" loading
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1500);
+    
+    // Mock Auth Verification if token is present
+    if (token) {
+      setTimeout(() => setAuthStatus("success"), 2000);
+    }
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [token]);
 
   const storyLines = [
     "The fog hangs heavy over the Grand Canal tonight.",
@@ -40,6 +54,35 @@ export default function StoryPlayer() {
 
   return (
     <div className="h-full flex flex-col bg-black relative overflow-hidden">
+      {/* Debug Overlay for "Backend" Testing */}
+      <AnimatePresence>
+        {showDebug && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-16 left-4 right-4 z-50"
+          >
+            <div className="bg-black/80 backdrop-blur-md border border-green-500/30 rounded-lg p-3 font-mono text-xs text-green-400 shadow-lg">
+              <div className="flex justify-between items-center mb-2 border-b border-green-500/20 pb-1">
+                 <span className="flex items-center gap-2"><Terminal className="w-3 h-3" /> BACKEND CONNECTION</span>
+                 <button onClick={() => setShowDebug(false)} className="hover:text-white">x</button>
+              </div>
+              <div className="space-y-1">
+                 <p>STORY_ID: <span className="text-white">{id}</span></p>
+                 <p>USER_ID: <span className="text-white">{userId || "N/A"}</span></p>
+                 <p className="truncate">TOKEN: <span className="text-white">{token ? `${token.substring(0, 15)}...` : "N/A"}</span></p>
+                 <div className="flex items-center gap-2 mt-2">
+                    STATUS: 
+                    {authStatus === 'verifying' && <span className="text-yellow-400 animate-pulse">VERIFYING_SIGNATURE...</span>}
+                    {authStatus === 'success' && <span className="text-green-400 font-bold">AUTHENTICATED (MOCK)</span>}
+                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mock WebView Content */}
       <div className="absolute inset-0 z-0">
         {/* This represents the PixiJS Canvas */}
