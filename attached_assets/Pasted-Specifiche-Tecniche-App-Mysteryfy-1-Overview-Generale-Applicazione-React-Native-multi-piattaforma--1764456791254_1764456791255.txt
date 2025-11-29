@@ -1,0 +1,495 @@
+Specifiche Tecniche App Mysteryfy
+1. Overview Generale
+Applicazione React Native multi-piattaforma (iOS, Android, Desktop) per distribuire storie interattive HTML/JavaScript create con Twine e PixiJS. L'app funge da contenitore nativo che incorpora le storie HTML tramite WebView, fornendo accesso alle funzionalità native del dispositivo (GPS, fotocamera) e gestendo autenticazione, multiplayer e acquisti in-app.
+2. Stack Tecnologico
+Core
+    • React Native - Framework principale 
+    • react-native-webview - Per incorporare contenuti HTML/JavaScript 
+Autenticazione e Backend
+    • Firebase Authentication - Autenticazione Apple/Google 
+    • Axios o Fetch API - Chiamate al backend 
+Funzionalità Native
+    • react-native-geolocation-service - Geolocalizzazione e geofencing 
+    • react-native-vision-camera o react-native-camera - Accesso fotocamera per QR code 
+    • react-native-qrcode-scanner o libreria equivalente - Decodifica QR code (nativo, non HTML5) 
+Acquisti In-App
+    • react-native-iap - Gestione acquisti iOS/Android 
+Storage
+    • AsyncStorage o react-native-mmkv - Persistenza token, configurazioni e cache 
+File System
+    • react-native-fs - Download e gestione file HTML in locale 
+Sharing
+    • react-native-share - Condivisione codici stanza 
+Deep Linking
+    • react-native-deep-linking o React Navigation deep linking - Gestione link esterni (es. inviti multiplayer) 
+3. Architettura del Sistema
+┌─────────────────────────────────────────────────────────┐
+│                    App React Native                      │
+│                                                          │
+│  ┌────────────┐  ┌──────────────┐  ┌─────────────────┐ │
+│  │   Auth     │  │  Navigation  │  │  Native Bridge  │ │
+│  │  Manager   │  │   Screens    │  │  (GPS, Camera)  │ │
+│  └────────────┘  └──────────────┘  └─────────────────┘ │
+│         │               │                    │          │
+│         └───────────────┴────────────────────┘          │
+│                         │                               │
+│         ┌───────────────▼────────────────┐              │
+│         │     WebView Container          │              │
+│         │  ┌──────────────────────────┐  │              │
+│         │  │   Storia HTML/JS         │  │              │
+│         │  │   (Twine + PixiJS)       │  │              │
+│         │  └──────────────────────────┘  │              │
+│         │   ↕ PostMessage Communication  │              │
+│         └────────────────────────────────┘              │
+│                         │                               │
+└─────────────────────────┼───────────────────────────────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+   ┌────▼─────┐    ┌─────▼──────┐   ┌─────▼──────┐
+   │ Firebase │    │  Backend   │   │ App Store/ │
+   │   Auth   │    │    API     │   │Play Store  │
+   └──────────┘    └────────────┘   └────────────┘
+4. Comunicazione WebView ↔ React Native
+Da WebView → React Native
+// Nell'HTML della storia
+window.ReactNativeWebView.postMessage(JSON.stringify({
+  type: 'REQUEST_GPS',
+  payload: { action: 'getCurrentPosition' }
+}));
+
+window.ReactNativeWebView.postMessage(JSON.stringify({
+  type: 'REQUEST_CAMERA',
+  payload: { action: 'scanQR' }
+}));
+
+window.ReactNativeWebView.postMessage(JSON.stringify({
+  type: 'PURCHASE_REQUEST',
+  payload: { itemId: 'premium_chapter_2' }
+}));
+
+window.ReactNativeWebView.postMessage(JSON.stringify({
+  type: 'GEOFENCE_REGISTER',
+  payload: { 
+    regions: [
+      { lat: 41.9028, lng: 12.4964, radius: 100, id: 'colosseo' }
+    ]
+  }
+}));
+Da React Native → WebView
+// In React Native
+webViewRef.current.injectJavaScript(`
+  window.dispatchEvent(new CustomEvent('nativeEvent', {
+    detail: {
+      type: 'GPS_RESPONSE',
+      payload: { lat: 41.9028, lng: 12.4964, accuracy: 10 }
+    }
+  }));
+`);
+
+webViewRef.current.injectJavaScript(`
+  window.dispatchEvent(new CustomEvent('nativeEvent', {
+    detail: {
+      type: 'QR_SCANNED',
+      payload: { code: 'ABC123XYZ' }
+    }
+  }));
+`);
+
+webViewRef.current.injectJavaScript(`
+  window.dispatchEvent(new CustomEvent('nativeEvent', {
+    detail: {
+      type: 'PURCHASE_COMPLETED',
+      payload: { success: true, itemId: 'premium_chapter_2' }
+    }
+  }));
+`);
+
+webViewRef.current.injectJavaScript(`
+  window.dispatchEvent(new CustomEvent('nativeEvent', {
+    detail: {
+      type: 'GEOFENCE_ENTERED',
+      payload: { regionId: 'colosseo' }
+    }
+  }));
+`);
+Listener nell'HTML
+// Nell'HTML della storia
+window.addEventListener('nativeEvent', (event) => {
+  const { type, payload } = event.detail;
+  switch(type) {
+    case 'GPS_RESPONSE':
+      // Gestisci coordinate GPS
+      break;
+    case 'QR_SCANNED':
+      // Gestisci codice QR
+      break;
+    case 'PURCHASE_COMPLETED':
+      // Continua la storia dopo l'acquisto
+      break;
+    case 'GEOFENCE_ENTERED':
+      // Scatena evento nella storia
+      break;
+  }
+});
+5. Flusso Utente Dettagliato
+1. Download e Installazione
+    • Utente scarica app da App Store/Play Store/Microsoft Store 
+    • Installazione sul dispositivo 
+2. Primo Avvio - Autenticazione
+    • Schermata di login con opzioni: 
+        ◦ Sign in with Apple (iOS) 
+        ◦ Sign in with Google (iOS/Android) 
+    • Firebase gestisce autenticazione OAuth 
+    • Firebase restituisce ID token 
+    • App invia token a backend: POST /auth/verify 
+    • Backend valida token e restituisce JWT personalizzato 
+    • JWT salvato in AsyncStorage per sessioni successive 
+    • Gestione errori: 
+        ◦ Autenticazione fallita: "Errore di autenticazione. Riprova." 
+        ◦ Backend non raggiungibile: "Impossibile connettersi. Verifica la connessione." 
+3. Richiesta Permessi
+    • GPS: "L'app necessita della posizione per funzionalità geolocalizzate" 
+    • Fotocamera: "L'app necessita della fotocamera per scansionare QR code" 
+    • Se negati: avviso che alcune funzionalità non saranno disponibili 
+    • Link a impostazioni per riattivare permessi 
+4. Schermata Introduttiva
+    • Presentazione della storia 
+    • Tutorial: come giocare solo/multiplayer 
+    • Punti universo Mysteryfy 
+    • Supporto e FAQ 
+    • Cross-selling altri prodotti 
+5. Controllo Versione Storia
+    • App verifica file locale version.json 
+    • Richiesta a server: GET /stories/{storyId}/version.json 
+    • Confronto versioni: 
+        ◦ Se aggiornamento disponibile: download automatico in background 
+        ◦ Se download fallisce: usa versione cached se disponibile 
+        ◦ Se prima installazione: download obbligatorio con progress bar 
+6. Selezione Tipo Avventura
+6.1 Se Gratuita/Freemium → vai a punto 7
+6.2 Se Premium → vai a punto 8
+7. Modalità Gioco (Gratis/Freemium)
+7.1 Gioco Solitario
+    • Pulsante "Gioca Solo" 
+    • Carica WebView con URL: file:///story/index.html?mode=solo&lang=it&userId={userId}&token={jwt} 
+    • → vai a punto 10 
+7.2 Multiplayer - Master
+    • Pulsante "Crea Partita" 
+    • Richiesta a backend: POST /rooms/create con JWT 
+    • Backend restituisce roomCode (es. "ABC123") 
+    • Mostra codice a schermo con pulsante "Condividi" 
+    • Condivisione tramite Share API nativa: "Unisciti alla mia partita Mysteryfy: [roomCode]" 
+    • Pulsante "Avvia Avventura" (enabled quando almeno 1 guest connesso) 
+    • Polling o WebSocket per aggiornare lista giocatori connessi 
+    • Al clic su "Avvia": carica WebView con URL: file:///story/index.html?mode=multiplayer&role=master&roomCode={roomCode}&lang=it&userId={userId}&token={jwt} 
+    • → vai a punto 10 
+7.3 Multiplayer - Guest
+    • Pulsante "Unisciti a Partita" 
+    • Campo input per roomCode 
+    • Validazione codice: POST /rooms/join con roomCode e JWT 
+    • Gestione errori: 
+        ◦ Codice invalido: "Codice stanza non valido" 
+        ◦ Stanza piena: "La stanza è al completo" 
+        ◦ Stanza già iniziata: "La partita è già iniziata" 
+    • Se valido: carica WebView con URL: file:///story/index.html?mode=multiplayer&role=guest&roomCode={roomCode}&lang=it&userId={userId}&token={jwt} 
+    • → vai a punto 10 
+8. Acquisto In-App (Premium)
+    • Richiesta a backend: GET /store/products/{storyId} 
+    • Backend restituisce productId dello store (es. com.mysteryfy.story.premium1) 
+    • Avvio processo acquisto nativo tramite react-native-iap 
+    • Stati acquisto: 
+        ◦ In corso: mostra loading "Elaborazione acquisto..." 
+        ◦ Annullato: "Acquisto annullato" → ritorna a schermata precedente 
+        ◦ Errore: "Errore durante l'acquisto. Riprova." → ritorna a schermata precedente 
+        ◦ Successo: 
+            ▪ Ottieni receipt da store 
+            ▪ Invia a backend: POST /purchases/verify con {receipt, userId, productId} 
+            ▪ Backend valida e registra acquisto 
+            ▪ Mostra "Acquisto completato con successo!" 
+            ▪ → vai a punto 7 
+9. Acquisto In-App da Freemium (dall'interno della storia HTML)
+    • Storia HTML invia messaggio: {type: 'PURCHASE_REQUEST', payload: {itemId: 'chapter_2'}} 
+    • React Native intercetta messaggio 
+    • Richiesta a backend: GET /store/products/{itemId} 
+    • Esegue processo acquisto come punto 8 
+    • Se successo: 
+        ◦ Invia a WebView: {type: 'PURCHASE_COMPLETED', payload: {success: true, itemId}} 
+        ◦ WebView riceve evento e sblocca contenuto 
+        ◦ Storia legge da localStorage il progresso e continua 
+    • Se fallito: 
+        ◦ Invia a WebView: {type: 'PURCHASE_COMPLETED', payload: {success: false, error: 'cancelled'}} 
+10. Esecuzione Storia nella WebView
+Caricamento
+    • WebView carica file:///storage/stories/{storyId}/index.html con query params 
+    • WebView ha JavaScript abilitato 
+    • DomStorage abilitato per localStorage (salvataggio progresso) 
+    • Geolocation abilitato se permesso concesso 
+Gestione Richieste Native
+    • Storia invia messaggi via postMessage 
+    • React Native ascolta messaggi e: 
+        ◦ GPS: usa react-native-geolocation-service 
+        ◦ Fotocamera/QR: apre scanner nativo 
+        ◦ Geofence: registra regioni e monitora in background 
+        ◦ Acquisto: avvia processo come punto 9 
+Persistenza Progresso
+    • Gestita da localStorage nella WebView 
+    • Automaticamente persistente tra sessioni 
+    • Reset manuale disponibile in impostazioni app 
+Gestione Background/Resume
+    • iOS: supporto background geolocation 
+    • Android: foreground service per geofencing attivo 
+    • Al resume: storia riprende da localStorage 
+Chiusura Storia
+    • Pulsante back nativo 
+    • Conferma "Sei sicuro di voler uscire? Il progresso verrà salvato." 
+    • Ritorno a schermata principale 
+6. Gestione File e Cache
+Struttura File Locali
+/storage/
+  └── stories/
+      └── {storyId}/
+          ├── version.json
+          ├── index.html
+          ├── css/
+          ├── js/
+          ├── media/
+          └── assets/
+Download e Aggiornamenti
+// Pseudo-codice processo download
+async function checkAndDownloadStory(storyId) {
+  const localVersion = await readLocalVersion(storyId);
+  const remoteVersion = await fetch(`${API_URL}/stories/${storyId}/version.json`);
+  
+  if (!localVersion || remoteVersion.version > localVersion.version) {
+    const storyZip = await downloadWithProgress(`${API_URL}/stories/${storyId}/download`);
+    await extractZip(storyZip, `/storage/stories/${storyId}/`);
+    await saveVersion(storyId, remoteVersion);
+  }
+}
+Sicurezza File Remoti
+    • HTTPS obbligatorio per tutti i download 
+    • Checksum validation: ogni file include hash SHA-256 in version.json 
+    • Verifica integrità post-download 
+    • Sandbox WebView: CSP (Content Security Policy) per limitare richieste esterne non autorizzate 
+Offline Mode
+    • Storie scaricate disponibili offline 
+    • Multiplayer richiede connessione (ovviamente) 
+    • Sincronizzazione acquisti al ritorno online 
+7. Configurazione Developer
+File di Configurazione: story-config.json
+{
+  "storyId": "mystery_rome_2024",
+  "version": "1.2.0",
+  "title": {
+    "en": "Mystery in Rome",
+    "it": "Mistero a Roma"
+  },
+  "features": {
+    "type": "freemium",
+    "modes": ["solo", "multiplayer"],
+    "gps": true,
+    "camera": true,
+    "geofencing": true,
+    "inAppPurchase": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "chapter_2",
+          "productId": {
+            "ios": "com.mysteryfy.rome.chapter2",
+            "android": "com.mysteryfy.rome.chapter2"
+          }
+        }
+      ]
+    }
+  },
+  "minAppVersion": "2.0.0",
+  "languages": ["it", "en"],
+  "entryPoint": "index.html"
+}
+Processo Integrazione Storia
+    1. Developer crea cartella storia con index.html e assets 
+    2. Aggiunge story-config.json nella root della storia 
+    3. Carica su server: PUT /stories/{storyId}/upload (multipart/zip) 
+    4. Backend valida config e genera version.json 
+    5. App scarica e integra automaticamente 
+Build Multi-Piattaforma
+    • iOS: npx react-native run-ios 
+    • Android: npx react-native run-android 
+    • Windows: React Native for Windows 
+    • macOS: React Native for macOS 
+8. Versioni Minime OS
+    • iOS: 13.0+ 
+    • Android: API 23 (Android 6.0)+ 
+    • Windows: Windows 10 1809+ 
+    • macOS: 10.14+ 
+9. Deep Linking
+Cos'è
+Il deep linking permette di aprire l'app direttamente a una schermata specifica tramite URL esterni (es. da email, SMS, web).
+Casi d'Uso
+    • Inviti multiplayer: mysteryfy://join?roomCode=ABC123 
+    • Promozioni: mysteryfy://story?id=rome_mystery&discount=50 
+    • Condivisione progressi: mysteryfy://share?userId=123&achievement=completed_rome 
+Implementazione
+// Schema URL custom
+mysteryfy://[route]?[params]
+
+// Esempi
+mysteryfy://join?roomCode=ABC123
+mysteryfy://story?id=rome_mystery
+mysteryfy://purchase?itemId=premium_chapter_2
+Configurazione
+    • iOS: URL Schemes e Universal Links in Info.plist 
+    • Android: Intent Filters in AndroidManifest.xml 
+10. Gestione Errori e Edge Cases
+Errori di Rete
+    • Timeout: 30 secondi per chiamate API 
+    • Retry automatico: 3 tentativi con exponential backoff 
+    • Fallback: usa cache locale se disponibile 
+    • Messaggio generico: "Connessione assente. Alcune funzionalità potrebbero non essere disponibili." 
+Errori Autenticazione
+    • Token scaduto: refresh automatico con Firebase 
+    • Token invalido: logout forzato e redirect a login 
+    • Messaggio: "Sessione scaduta. Effettua nuovamente l'accesso." 
+Errori Permessi
+    • GPS negato: mostra messaggio con link a Settings 
+    • Fotocamera negata: disabilita feature QR nell'interfaccia 
+    • Check permessi prima di ogni utilizzo 
+Errori Acquisti
+    • Acquisto fallito: mostra errore e permetti retry 
+    • Receipt invalida: "Errore nella verifica dell'acquisto. Contatta il supporto." 
+    • Acquisto duplicato: backend gestisce, no addebito doppio 
+Memoria e Performance
+    • Limite WebView: monitora uso memoria 
+    • Se superato: mostra alert "La storia è troppo grande. Chiudi altre app." 
+    • Cleanup automatico cache vecchie storie (>30 giorni non usate) 
+Geofencing Background
+    • iOS: usa "Always Allow" location permission 
+    • Android: Foreground Service con notifica persistente 
+    • Batteria: ottimizzazione intervalli controllo (5 min default) 
+11. Security
+Autenticazione
+    • JWT con scadenza 24h 
+    • Refresh token salvato in Keychain (iOS) / Keystore (Android) 
+    • Ogni richiesta backend include: Authorization: Bearer {jwt} 
+Validazione Input
+    • Sanitize roomCode: solo caratteri alfanumerici, max 10 caratteri 
+    • Sanitize tutti i parametri query passati a WebView 
+    • Escape HTML in messaggi utente 
+WebView Security
+// Configurazione sicura WebView
+<WebView
+  source={{ uri: storyUrl }}
+  javaScriptEnabled={true}
+  domStorageEnabled={true}
+  allowFileAccess={true}
+  allowUniversalAccessFromFileURLs={false} // IMPORTANTE
+  mixedContentMode="never" // Solo HTTPS
+  onShouldStartLoadWithRequest={(request) => {
+    // Whitelist solo domini autorizzati
+    const allowedDomains = ['mysteryfy.com', 'api.mysteryfy.com'];
+    return allowedDomains.some(domain => request.url.includes(domain));
+  }}
+/>
+HTTPS Obbligatorio
+    • Tutti gli endpoint backend su HTTPS 
+    • Certificate pinning per API critiche (opzionale ma consigliato) 
+    • No richieste HTTP in plain text 
+Protezione Dati
+    • Token in storage cifrato (AsyncStorage non è cifrato di default, usare react-native-encrypted-storage) 
+    • Nessun dato sensibile in localStorage della WebView 
+    • Receipt acquisti inviate immediatamente a backend, non salvate localmente 
+12. Testing e Deployment
+Ambienti
+// .env.development
+API_URL=https://dev-api.mysteryfy.com
+FIREBASE_CONFIG={...}
+
+// .env.staging
+API_URL=https://staging-api.mysteryfy.com
+FIREBASE_CONFIG={...}
+
+// .env.production
+API_URL=https://api.mysteryfy.com
+FIREBASE_CONFIG={...}
+Testing
+    • Unit tests: Jest per logica business 
+    • Integration tests: Detox per flussi completi 
+    • Manual testing: 
+        ◦ iOS: TestFlight per beta testing 
+        ◦ Android: Google Play Internal Testing 
+        ◦ Windows: Microsoft Store Beta 
+Versionamento
+    • App: Semantic versioning (es. 2.1.3) 
+    • Storie: Semantic versioning indipendente 
+    • Compatibilità: minAppVersion in story-config.json 
+Rollback
+    • Versioni app precedenti mantenute negli store 
+    • Storie: mantieni 3 versioni precedenti sul server 
+    • In caso di bug critico: push versione precedente come hotfix 
+CI/CD
+    • Build automatiche con GitHub Actions / Fastlane 
+    • Deploy staging automatico su push a develop 
+    • Deploy produzione manuale su merge a main 
+13. Metriche e Analytics
+Eventi da Tracciare
+    • app_opened 
+    • auth_completed 
+    • story_started (solo/multiplayer) 
+    • story_completed 
+    • purchase_initiated 
+    • purchase_completed 
+    • geofence_triggered 
+    • qr_scanned 
+    • error_occurred (con tipo errore) 
+Strumenti Suggeriti
+    • Firebase Analytics 
+    • Sentry per error tracking 
+    • Mixpanel per funnels acquisto 
+14. Supporto e Manutenzione
+Logging
+    • Errori critici loggati con Sentry 
+    • Log locali per debug (disabilitati in produzione) 
+    • User ID sempre incluso nei log per supporto 
+Supporto Utenti
+    • In-app: link a FAQ e contact form 
+    • Email: support@mysteryfy.com 
+    • In caso di problemi: utente può inviare log (se opta-in) 
+Documentazione
+    • README per setup developer 
+    • API documentation (Swagger/OpenAPI) 
+    • Guida integrazione nuove storie 
+    • Changelog app e storie 
+
+Note Implementative per Replit AI
+    • Usa TypeScript per type safety 
+    • Implementa error boundaries in React 
+    • Usa Context API per stato globale (auth, config) 
+    • React Navigation per routing 
+    • Configura ESLint e Prettier 
+    • Git flow: feature branches → develop → main 
+    • Commenta codice complesso, specialmente bridge WebView-Native 
+    • Test coverage minimo: 70% 
+Appendice: Esempio Flusso Completo
+Scenario: Utente scarica app, crea partita multiplayer, un amico si unisce, giocano insieme in una città con geofencing attivo.
+    1. User A scarica app 
+    2. Login con Google → token salvato 
+    3. Permessi GPS e fotocamera concessi 
+    4. Seleziona storia "Mistero a Roma" (freemium) 
+    5. Crea partita multiplayer (master) 
+    6. Condivide codice "XYZ789" con User B via WhatsApp 
+    7. User B apre link deep → app apre schermata join 
+    8. User B inserisce codice → si unisce 
+    9. User A vede "User B si è unito" → Avvia avventura 
+    10. WebView carica storia con roomCode=XYZ789&role=master 
+    11. Durante gioco, entrano in area Colosseo 
+    12. Geofence trigger → app invia evento a WebView 
+    13. Storia mostra nuovo indizio 
+    14. Scansionano QR code su statua 
+    15. App apre fotocamera nativa → decodifica QR 
+    16. Invia codice a WebView → storia sblocca capitolo 2 
+    17. Capitolo 2 è premium → storia richiede acquisto 
+    18. App gestisce acquisto → completato 
+    19. Storia continua da localStorage 
+    20. Completano l'avventura → punti salvati su backend 
