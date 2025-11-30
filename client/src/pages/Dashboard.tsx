@@ -76,9 +76,10 @@ export default function Dashboard() {
   // Fallback if array is empty or undefined
   const list = adventures || [];
 
-  // Find featured adventure by "inevidenza" tag
-  const featured = list.find(a => a.tags && a.tags.includes("inevidenza")) || list[0];
-  const others = list.filter(a => a.id !== featured?.id);
+  // Find featured adventure by "featured" tag
+  const featured =
+    list.find((a) => a.tags && a.tags.includes("#inevidenza")) || list[0];
+  const others = list.filter((a) => a.id !== featured?.id);
 
   return (
     <div className="pb-24 px-6 pt-12 space-y-8">
