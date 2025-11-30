@@ -1,51 +1,53 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Lock, Users, MapPin, Clock, Star, UserPlus } from "lucide-react";
+import { Lock, UserPlus, Clock, MapPin, Star, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
-
-// Mock Data
-const STORIES = [
-  {
-    id: "1",
-    title: "The Venetian Masquerade",
-    description: "A diplomat vanishes during the Carnival. Navigate the canals and secrets of Venice to find him before dawn.",
-    image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?q=80&w=800&auto=format&fit=crop",
-    tags: ["Mystery", "Historical", "Puzzle"],
-    difficulty: "Hard",
-    duration: "2h 30m",
-    type: "Premium",
-    rating: 4.8
-  },
-  {
-    id: "2",
-    title: "Neon Rain",
-    description: "In 2084, a sentient AI is accused of murder. As a detective, you must decide: glitch or evolution?",
-    image: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?q=80&w=800&auto=format&fit=crop",
-    tags: ["Sci-Fi", "Thriller", "Noir"],
-    difficulty: "Medium",
-    duration: "1h 45m",
-    type: "Free",
-    rating: 4.5
-  },
-  {
-    id: "3",
-    title: "The Midnight Train",
-    description: "A murder on the Orient Express, reimagined. Everyone is a suspect, and the train never stops.",
-    image: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=800&auto=format&fit=crop",
-    tags: ["Classic", "Crime", "Solo"],
-    difficulty: "Easy",
-    duration: "45m",
-    type: "Free",
-    rating: 4.2
-  }
-];
+import { useQuery } from "@tanstack/react-query";
+import { api, Adventure } from "@/lib/api";
 
 export default function Dashboard() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const { data: adventures, isLoading, error } = useQuery({
+    queryKey: ["adventures"],
+    queryFn: api.adventures.list
+  });
+
+  // Helper to get localized content
+  const getLocalized = (obj: { en: string; it: string } | undefined) => {
+    if (!obj) return "";
+    return language === "it" ? obj.it : obj.en;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-muted-foreground animate-pulse">Loading cases...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center space-y-4 p-6 text-center">
+        <AlertCircle className="w-12 h-12 text-destructive" />
+        <p className="text-white font-medium">Failed to load adventures.</p>
+        <p className="text-muted-foreground text-sm">{(error as Error).message}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  // Fallback if array is empty or undefined
+  const list = adventures || [];
+  const featured = list.find(a => a.is_premium) || list[0];
+  const others = list.filter(a => a.id !== featured?.id);
 
   return (
     <div className="pb-24 px-6 pt-12 space-y-8">
@@ -67,39 +69,43 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Featured Carousel (Mock) */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{t("dashboard.featuredCase")}</h3>
-        <Link href={`/story/${STORIES[0].id}`}>
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            className="relative aspect-[16/10] rounded-xl overflow-hidden border border-white/10 shadow-lg cursor-pointer group"
-          >
-            <img src={STORIES[0].image} alt="Featured" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-            <div className="absolute bottom-0 left-0 p-5 w-full">
-              <div className="flex justify-between items-end">
-                <div>
-                  <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/80 mb-2 border-0">
-                    <Star className="w-3 h-3 mr-1 fill-current" /> {t("dashboard.premium")}
-                  </Badge>
-                  <h3 className="text-xl font-display font-bold text-white leading-none mb-1">{STORIES[0].title}</h3>
-                  <div className="flex items-center text-xs text-gray-300 gap-3 mt-2">
-                    <span className="flex items-center"><Clock className="w-3 h-3 mr-1" /> {STORIES[0].duration}</span>
-                    <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" /> Venice</span>
+      {/* Featured Case */}
+      {featured && (
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{t("dashboard.featuredCase")}</h3>
+          <Link href={`/story/${featured.id}`}>
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="relative aspect-[16/10] rounded-xl overflow-hidden border border-white/10 shadow-lg cursor-pointer group"
+            >
+              <img src={featured.cover_url || featured.thumbnail_url} alt={getLocalized(featured.title)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-5 w-full">
+                <div className="flex justify-between items-end">
+                  <div>
+                    {featured.is_premium && (
+                      <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/80 mb-2 border-0">
+                        <Star className="w-3 h-3 mr-1 fill-current" /> {t("dashboard.premium")}
+                      </Badge>
+                    )}
+                    <h3 className="text-xl font-display font-bold text-white leading-none mb-1">{getLocalized(featured.title)}</h3>
+                    <div className="flex items-center text-xs text-gray-300 gap-3 mt-2">
+                      {featured.duration && <span className="flex items-center"><Clock className="w-3 h-3 mr-1" /> {featured.duration}</span>}
+                      {featured.category && <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" /> {featured.category}</span>}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </Link>
-      </div>
+            </motion.div>
+          </Link>
+        </div>
+      )}
 
       {/* List */}
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{t("dashboard.availableNow")}</h3>
         <div className="grid gap-4">
-          {STORIES.slice(1).map((story, i) => (
+          {others.map((story, i) => (
             <Link key={story.id} href={`/story/${story.id}`}>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -109,18 +115,18 @@ export default function Dashboard() {
                 <Card className="bg-card/50 border-white/5 overflow-hidden hover:bg-card/80 transition-colors cursor-pointer">
                   <div className="flex h-28">
                     <div className="w-28 h-full shrink-0">
-                      <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
+                      <img src={story.thumbnail_url} alt={getLocalized(story.title)} className="w-full h-full object-cover" />
                     </div>
                     <div className="p-3 flex flex-col justify-between grow">
                       <div>
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-display font-semibold text-white text-sm">{story.title}</h4>
-                          {story.type === 'Premium' && <Lock className="w-3 h-3 text-secondary" />}
+                          <h4 className="font-display font-semibold text-white text-sm">{getLocalized(story.title)}</h4>
+                          {story.is_premium && <Lock className="w-3 h-3 text-secondary" />}
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{story.description}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{getLocalized(story.short_description)}</p>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        {story.tags.map(tag => (
+                        {story.tags?.map(tag => (
                           <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-gray-400 border border-white/5">
                             {tag}
                           </span>

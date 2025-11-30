@@ -1,12 +1,6 @@
 import { useLocation } from "wouter";
 
-// Default from specs, but can be overridden
-export const API_BASE_URL = localStorage.getItem("mysteryfy_api_url") || "https://gta.mysteryfy.com";
-
-export const setApiUrl = (url: string) => {
-  localStorage.setItem("mysteryfy_api_url", url);
-  window.location.reload();
-};
+export const API_BASE_URL = "https://gta.mysteryfy.com";
 
 // Helper for headers
 const getHeaders = () => {
@@ -17,10 +11,40 @@ const getHeaders = () => {
   };
 };
 
+export interface Adventure {
+  id: string;
+  slug: string;
+  thumbnail_url: string;
+  cover_url: string;
+  tags: string[];
+  category: string;
+  difficulty: string; // assuming these exist or mapped
+  duration: string;   // assuming these exist or mapped
+  rating: number;     // assuming these exist or mapped
+  is_premium: boolean;
+  price?: string;
+  product_ids?: {
+    apple?: string;
+    google?: string;
+  };
+  title: {
+    en: string;
+    it: string;
+  };
+  short_description: {
+    en: string;
+    it: string;
+  };
+  long_description: {
+    en: string;
+    it: string;
+  };
+}
+
 export const api = {
   auth: {
     verify: async (idToken: string) => {
-      const res = await fetch(`${API_BASE_URL}/api/v1/login/`, {
+      const res = await fetch(`${API_BASE_URL}/auth/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: idToken })
@@ -28,15 +52,29 @@ export const api = {
       return res.json();
     }
   },
+  adventures: {
+    list: async (): Promise<Adventure[]> => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/`, {
+        headers: getHeaders()
+      });
+      if (!res.ok) throw new Error("Failed to fetch adventures");
+      return res.json();
+    },
+    get: async (id: string): Promise<Adventure> => {
+       const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${id}`, {
+        headers: getHeaders()
+      });
+      if (!res.ok) throw new Error("Failed to fetch adventure");
+      return res.json();
+    }
+  },
   stories: {
-    getVersion: async (storyId: string, version: string) => {
-      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${storyId}/check-update/${version}/`, {
+    getVersion: async (storyId: string) => {
+      const res = await fetch(`${API_BASE_URL}/stories/${storyId}/version.json`, {
         headers: getHeaders()
       });
       return res.json();
     },
-    // In a real app, this would handle the zip download/extraction logic
-    // For prototype, we just check if we can reach it
     checkDownload: async (storyId: string) => {
         const res = await fetch(`${API_BASE_URL}/stories/${storyId}/download`, {
             method: "HEAD",
@@ -46,15 +84,15 @@ export const api = {
     }
   },
   rooms: {
-    create: async (storyId: string) => {
-      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${storyId}/multiplayer/rooms/`, {
+    create: async () => {
+      const res = await fetch(`${API_BASE_URL}/rooms/create`, {
         method: "POST",
         headers: getHeaders()
       });
       return res.json();
     },
-    join: async (storyId: string, roomCode: string) => {
-      const res = await fetch(`${API_BASE_URL}//api/v1/adventures/${storyId}/multiplayer/rooms/${roomCode}/join/`, {
+    join: async (roomCode: string) => {
+      const res = await fetch(`${API_BASE_URL}/rooms/join`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ roomCode })
@@ -64,13 +102,13 @@ export const api = {
   },
   store: {
     getProducts: async (storyId: string) => {
-      const res = await fetch(`${API_BASE_URL}//api/v1/adventures/${storyId}/`, {
+      const res = await fetch(`${API_BASE_URL}/store/products/${storyId}`, {
         headers: getHeaders()
       });
       return res.json();
     },
-    verifyPurchase: async (storyId: string, receipt: string, userId: string, productId: string) => {
-      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${storyId}/purchase/`, {
+    verifyPurchase: async (receipt: string, userId: string, productId: string) => {
+      const res = await fetch(`${API_BASE_URL}/purchases/verify`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ receipt, userId, productId })
