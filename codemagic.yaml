@@ -1,0 +1,15 @@
+# codemagic.yaml - VERSIONE MINIMALE
+workflows:
+  android-test:
+    name: Android Test
+    environment:
+      node: 18
+    scripts:
+      - npm install
+      - cd android && ./gradlew assembleDebug
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
+    publishing:
+      email:
+        recipients:
+          - tuaemail@gmail.com
