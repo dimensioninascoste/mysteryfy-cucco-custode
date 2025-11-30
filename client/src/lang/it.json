@@ -26,6 +26,7 @@
     "level": "LVL"
   },
   "story": {
+    "downloadAdventure": "Scarica sul tuo dispositivo",
     "playSolo": "Gioca da Solo",
     "createParty": "Crea Gruppo (Multiplayer)",
     "unlockFor": "Sblocca per",

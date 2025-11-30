@@ -26,6 +26,7 @@
     "level": "LVL"
   },
   "story": {
+    "downloadAdventure": "Download Adventure",
     "playSolo": "Play Solo",
     "createParty": "Create Party (Multiplayer)",
     "unlockFor": "Unlock for",
