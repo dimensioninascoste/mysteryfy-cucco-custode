@@ -12,4 +12,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - tuaemail@gmail.com
+          - marewanidev@gmail.com
