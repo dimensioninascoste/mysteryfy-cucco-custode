@@ -25,8 +25,10 @@ export default function StoryDetail() {
     return language === "it" ? obj.it : obj.en;
   };
 
+  const isPremium = (price: string) => price !== "0.00";
+
   const handlePlay = () => {
-    if (story?.is_premium) {
+    if (story && isPremium(story.price)) {
       setShowPurchaseModal(true);
     } else {
       setLocation(`/play/${id}`);
@@ -67,7 +69,7 @@ export default function StoryDetail() {
     <div className="relative min-h-full pb-24">
       {/* Hero Image */}
       <div className="h-[40vh] relative w-full">
-        <img src={story.cover_url || story.thumbnail_url} className="w-full h-full object-cover" />
+        <img src={story.cover_image || story.thumbnail} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
         <Link href="/dashboard">
           <Button variant="ghost" size="icon" className="absolute top-4 left-4 text-white hover:bg-black/20 rounded-full">
@@ -81,10 +83,10 @@ export default function StoryDetail() {
         <div>
           <div className="flex justify-between items-start mb-2">
             <Badge className={`
-              ${story.is_premium ? 'bg-secondary text-secondary-foreground' : 'bg-primary/20 text-primary'} 
+              ${isPremium(story.price) ? 'bg-secondary text-secondary-foreground' : 'bg-primary/20 text-primary'} 
               hover:bg-opacity-80 border border-white/10 backdrop-blur-md
             `}>
-              {story.is_premium ? t("story.premiumCase") : t("story.freeCase")}
+              {isPremium(story.price) ? t("story.premiumCase") : t("story.freeCase")}
             </Badge>
             {story.rating && (
               <div className="flex items-center text-yellow-500 text-sm font-bold bg-black/50 px-2 py-1 rounded backdrop-blur-md">
@@ -92,7 +94,7 @@ export default function StoryDetail() {
               </div>
             )}
           </div>
-          <h1 className="text-3xl font-display font-bold text-white mb-2 leading-tight">{getLocalized(story.title)}</h1>
+          <h1 className="text-3xl font-display font-bold text-white mb-2 leading-tight">{getLocalized(story.name)}</h1>
           <div className="flex items-center gap-4 text-muted-foreground text-sm">
              {story.duration && <span className="flex items-center"><Clock className="w-3 h-3 mr-1" /> {story.duration}</span>}
              {story.category && <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" /> {story.category}</span>}
@@ -119,8 +121,8 @@ export default function StoryDetail() {
             className="w-full h-14 text-lg font-semibold bg-white text-black hover:bg-gray-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] rounded-xl"
             onClick={handlePlay}
           >
-            {story.is_premium ? (
-               <><Lock className="w-5 h-5 mr-2" /> {t("story.unlockFor")} {story.price || "$4.99"}</>
+            {isPremium(story.price) ? (
+               <><Lock className="w-5 h-5 mr-2" /> {t("story.unlockFor")} {story.price}</>
             ) : (
                <><Play className="w-5 h-5 mr-2 fill-current" /> {t("story.playSolo")}</>
             )}
@@ -140,7 +142,7 @@ export default function StoryDetail() {
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Unlock Case File</DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Purchase full access to "{getLocalized(story.title)}" to reveal the truth.
+              Purchase full access to "{getLocalized(story.name)}" to reveal the truth.
             </DialogDescription>
           </DialogHeader>
           <div className="py-6">
@@ -150,11 +152,11 @@ export default function StoryDetail() {
                       <Lock className="w-6 h-6" />
                    </div>
                    <div>
-                      <p className="font-bold text-white">{getLocalized(story.title)}</p>
+                      <p className="font-bold text-white">{getLocalized(story.name)}</p>
                       <p className="text-xs text-muted-foreground">{t("story.fullAccess")} • {t("story.lifetime")}</p>
                    </div>
                 </div>
-                <span className="font-mono text-lg font-bold text-white">{story.price || "$4.99"}</span>
+                <span className="font-mono text-lg font-bold text-white">{story.price}</span>
              </div>
           </div>
           <DialogFooter className="flex-col gap-2 sm:gap-0">

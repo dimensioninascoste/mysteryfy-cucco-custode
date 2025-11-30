@@ -22,6 +22,12 @@ export default function Dashboard() {
     return language === "it" ? obj.it : obj.en;
   };
 
+  const getPriceDisplay = (price: string) => {
+    return price === "0.00" ? t("dashboard.free") : price;
+  };
+
+  const isPremium = (price: string) => price !== "0.00";
+
   if (isLoading) {
     return (
       <div className="h-full flex flex-col items-center justify-center space-y-4">
@@ -46,7 +52,9 @@ export default function Dashboard() {
 
   // Fallback if array is empty or undefined
   const list = adventures || [];
-  const featured = list.find(a => a.is_premium) || list[0];
+  
+  // Find featured adventure by "featured" tag
+  const featured = list.find(a => a.tags && a.tags.includes("featured")) || list[0];
   const others = list.filter(a => a.id !== featured?.id);
 
   return (
@@ -78,17 +86,23 @@ export default function Dashboard() {
               whileHover={{ scale: 1.02 }}
               className="relative aspect-[16/10] rounded-xl overflow-hidden border border-white/10 shadow-lg cursor-pointer group"
             >
-              <img src={featured.cover_url || featured.thumbnail_url} alt={getLocalized(featured.title)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              {/* Use cover_image for featured */}
+              <img src={featured.cover_image} alt={getLocalized(featured.name)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 p-5 w-full">
                 <div className="flex justify-between items-end">
                   <div>
-                    {featured.is_premium && (
+                    {isPremium(featured.price) && (
                       <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/80 mb-2 border-0">
-                        <Star className="w-3 h-3 mr-1 fill-current" /> {t("dashboard.premium")}
+                        <Star className="w-3 h-3 mr-1 fill-current" /> {getPriceDisplay(featured.price)}
                       </Badge>
                     )}
-                    <h3 className="text-xl font-display font-bold text-white leading-none mb-1">{getLocalized(featured.title)}</h3>
+                    {!isPremium(featured.price) && (
+                       <Badge className="bg-primary/20 text-primary hover:bg-primary/30 mb-2 border-0">
+                        {t("dashboard.free")}
+                      </Badge>
+                    )}
+                    <h3 className="text-xl font-display font-bold text-white leading-none mb-1">{getLocalized(featured.name)}</h3>
                     <div className="flex items-center text-xs text-gray-300 gap-3 mt-2">
                       {featured.duration && <span className="flex items-center"><Clock className="w-3 h-3 mr-1" /> {featured.duration}</span>}
                       {featured.category && <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" /> {featured.category}</span>}
@@ -115,13 +129,14 @@ export default function Dashboard() {
                 <Card className="bg-card/50 border-white/5 overflow-hidden hover:bg-card/80 transition-colors cursor-pointer">
                   <div className="flex h-28">
                     <div className="w-28 h-full shrink-0">
-                      <img src={story.thumbnail_url} alt={getLocalized(story.title)} className="w-full h-full object-cover" />
+                      {/* Use thumbnail for list items */}
+                      <img src={story.thumbnail} alt={getLocalized(story.name)} className="w-full h-full object-cover" />
                     </div>
                     <div className="p-3 flex flex-col justify-between grow">
                       <div>
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-display font-semibold text-white text-sm">{getLocalized(story.title)}</h4>
-                          {story.is_premium && <Lock className="w-3 h-3 text-secondary" />}
+                          <h4 className="font-display font-semibold text-white text-sm">{getLocalized(story.name)}</h4>
+                          {isPremium(story.price) && <Lock className="w-3 h-3 text-secondary" />}
                         </div>
                         <p className="text-xs text-muted-foreground line-clamp-2">{getLocalized(story.short_description)}</p>
                       </div>

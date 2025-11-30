@@ -4,7 +4,6 @@ export const API_BASE_URL = "https://gta.mysteryfy.com";
 
 // Helper for headers
 const getHeaders = () => {
-  // Priority to Developer Token for testing as requested
   const devToken = localStorage.getItem("mysteryfy_dev_token");
   
   if (devToken) {
@@ -14,7 +13,6 @@ const getHeaders = () => {
     };
   }
 
-  // Standard Auth Flow (User Token)
   const token = localStorage.getItem("mysteryfy_token");
   return {
     "Content-Type": "application/json",
@@ -24,21 +22,22 @@ const getHeaders = () => {
 
 export interface Adventure {
   id: string;
-  slug: string;
-  thumbnail_url: string;
-  cover_url: string;
+  slug?: string;
+  thumbnail: string;    // Changed from thumbnail_url
+  cover_image: string;  // Changed from cover_url
   tags: string[];
-  category: string;
-  difficulty: string;
-  duration: string;
-  rating: number;
-  is_premium: boolean;
-  price?: string;
+  category?: string;
+  difficulty?: string;
+  duration?: string;
+  rating?: number;
+  is_premium?: boolean; // We might need to derive this from price
+  price: string;        // "0.00" for free
   product_ids?: {
     apple?: string;
     google?: string;
   };
-  title: {
+  // Localized fields
+  name: {               // Changed from title
     en: string;
     it: string;
   };
