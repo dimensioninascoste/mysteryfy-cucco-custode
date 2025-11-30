@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Volume2, Globe, LogOut, ChevronRight, CreditCard, Shield, Server } from "lucide-react";
+import { Bell, Volume2, Globe, LogOut, ChevronRight, CreditCard, Shield, Server, Key } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { API_BASE_URL } from "@/lib/api";
 import { useLanguage } from "@/hooks/use-language";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +18,21 @@ import {
 export default function Profile() {
   const [, setLocation] = useLocation();
   const { language, setLanguage, t } = useLanguage();
+  
+  const [devToken, setDevToken] = useState("");
+  const [isEditingToken, setIsEditingToken] = useState(false);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("mysteryfy_dev_token");
+    if (storedToken) setDevToken(storedToken);
+  }, []);
+
+  const handleSaveToken = () => {
+    localStorage.setItem("mysteryfy_dev_token", devToken);
+    setIsEditingToken(false);
+    // Reload to apply new token to API calls immediately (simple way)
+    window.location.reload(); 
+  };
 
   const handleLogout = () => {
     setLocation("/");
@@ -46,14 +63,51 @@ export default function Profile() {
         <div className="space-y-3">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider ml-1">{t("profile.developerInfo")}</h3>
           <Card className="bg-card/50 border-white/5">
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3 text-white">
-                <Server className="w-5 h-5 text-secondary" />
-                <span>{t("profile.backendConnected")}</span>
+            <div className="p-4 space-y-4">
+              {/* Backend URL Status */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-white">
+                  <Server className="w-5 h-5 text-secondary" />
+                  <span>{t("profile.backendConnected")}</span>
+                </div>
+                <span className="text-xs font-mono text-muted-foreground bg-black/30 px-2 py-1 rounded">
+                  {API_BASE_URL}
+                </span>
               </div>
-              <span className="text-xs font-mono text-muted-foreground bg-black/30 px-2 py-1 rounded">
-                {API_BASE_URL}
-              </span>
+
+              {/* Developer Token Input */}
+              <div className="space-y-2 pt-2 border-t border-white/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-white">
+                    <Key className="w-5 h-5 text-secondary" />
+                    <span>Developer Token</span>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-8 text-xs text-muted-foreground hover:text-white"
+                    onClick={() => isEditingToken ? handleSaveToken() : setIsEditingToken(true)}
+                  >
+                    {isEditingToken ? "Save" : "Edit"}
+                  </Button>
+                </div>
+                
+                {isEditingToken ? (
+                  <Input 
+                    value={devToken}
+                    onChange={(e) => setDevToken(e.target.value)}
+                    placeholder="Enter Token..."
+                    className="h-9 bg-black/50 border-white/10 text-xs font-mono text-white placeholder:text-muted-foreground"
+                  />
+                ) : (
+                  <div className="text-xs font-mono text-muted-foreground break-all bg-black/30 p-2 rounded border border-white/5">
+                    {devToken ? `${devToken.substring(0, 10)}...` : "No token set"}
+                  </div>
+                )}
+                <p className="text-[10px] text-muted-foreground">
+                  Format: Authorization: Token [value]
+                </p>
+              </div>
             </div>
           </Card>
         </div>
