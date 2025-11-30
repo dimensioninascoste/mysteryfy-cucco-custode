@@ -16,17 +16,34 @@ export default function Dashboard() {
     queryFn: api.adventures.list
   });
 
-  // Helper to get localized content
-  const getLocalized = (obj: { en: string; it: string } | undefined) => {
+  // Debugging: Log the data to console to inspect structure
+  if (adventures) {
+    console.log("Adventures Data:", adventures);
+  }
+
+  // Robust helper to get localized content
+  const getLocalized = (obj: any) => {
     if (!obj) return "";
-    return language === "it" ? obj.it : obj.en;
+    if (typeof obj === 'string') return obj;
+    // Handle case where localized object might be missing keys or have different structure
+    if (language === "it" && obj.it) return obj.it;
+    if (obj.en) return obj.en;
+    // Fallback to first available key if neither en nor it exists
+    const keys = Object.keys(obj);
+    if (keys.length > 0) return obj[keys[0]];
+    return "";
   };
 
   const getPriceDisplay = (price: string) => {
-    return price === "0.00" ? t("dashboard.free") : price;
+    // Ensure price is treated as string
+    const p = String(price);
+    return p === "0.00" || p === "0" ? t("dashboard.free") : p;
   };
 
-  const isPremium = (price: string) => price !== "0.00";
+  const isPremium = (price: string) => {
+    const p = String(price);
+    return p !== "0.00" && p !== "0";
+  };
 
   if (isLoading) {
     return (
@@ -87,7 +104,7 @@ export default function Dashboard() {
               className="relative aspect-[16/10] rounded-xl overflow-hidden border border-white/10 shadow-lg cursor-pointer group"
             >
               {/* Use cover_image for featured */}
-              <img src={featured.cover_image} alt={getLocalized(featured.name)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img src={featured.cover_image || featured.thumbnail} alt={getLocalized(featured.name)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 p-5 w-full">
                 <div className="flex justify-between items-end">

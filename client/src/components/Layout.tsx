@@ -17,23 +17,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         {!isPlayer && (
           <nav className="h-16 glass-panel border-t border-white/5 flex items-center justify-around px-6 absolute bottom-0 w-full z-50">
-            <Link href="/dashboard">
-              <a className={`flex flex-col items-center gap-1 transition-colors ${location === '/dashboard' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
+            <Link href="/dashboard" className={`flex flex-col items-center gap-1 transition-colors ${location === '/dashboard' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
                 <Home className="w-5 h-5" />
                 <span className="text-[10px] font-medium uppercase tracking-wider">{t("nav.home")}</span>
-              </a>
             </Link>
-            <Link href="/explore">
-              <a className={`flex flex-col items-center gap-1 transition-colors ${location === '/explore' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
+            <Link href="/explore" className={`flex flex-col items-center gap-1 transition-colors ${location === '/explore' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
                 <Compass className="w-5 h-5" />
                 <span className="text-[10px] font-medium uppercase tracking-wider">{t("nav.explore")}</span>
-              </a>
             </Link>
-            <Link href="/profile">
-              <a className={`flex flex-col items-center gap-1 transition-colors ${location === '/profile' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
+            <Link href="/profile" className={`flex flex-col items-center gap-1 transition-colors ${location === '/profile' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
                 <User className="w-5 h-5" />
                 <span className="text-[10px] font-medium uppercase tracking-wider">{t("nav.profile")}</span>
-              </a>
             </Link>
           </nav>
         )}

@@ -20,12 +20,21 @@ export default function StoryDetail() {
     queryFn: () => api.adventures.get(id!)
   });
 
-  const getLocalized = (obj: { en: string; it: string } | undefined) => {
+  // Robust helper to get localized content
+  const getLocalized = (obj: any) => {
     if (!obj) return "";
-    return language === "it" ? obj.it : obj.en;
+    if (typeof obj === 'string') return obj;
+    if (language === "it" && obj.it) return obj.it;
+    if (obj.en) return obj.en;
+    const keys = Object.keys(obj);
+    if (keys.length > 0) return obj[keys[0]];
+    return "";
   };
 
-  const isPremium = (price: string) => price !== "0.00";
+  const isPremium = (price: string) => {
+    const p = String(price);
+    return p !== "0.00" && p !== "0";
+  };
 
   const handlePlay = () => {
     if (story && isPremium(story.price)) {
