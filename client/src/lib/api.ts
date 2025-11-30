@@ -51,6 +51,19 @@ export interface Adventure {
   };
 }
 
+export interface UpdateCheckResponse {
+  update_available: boolean;
+  update_description?: string;
+  size?: string;
+  destroy_save_slot?: boolean;
+  version?: number;
+}
+
+export interface DownloadInfo {
+  version: number;
+  url: string;
+}
+
 export const api = {
   auth: {
     verify: async (idToken: string) => {
@@ -75,6 +88,34 @@ export const api = {
         headers: getHeaders()
       });
       if (!res.ok) throw new Error("Failed to fetch adventure");
+      return res.json();
+    },
+    getPurchased: async (): Promise<string[]> => {
+       // Returns array of adventure IDs
+       const res = await fetch(`${API_BASE_URL}/api/v1/adventures/purchased/`, {
+        headers: getHeaders()
+      });
+      // If authenticated but empty/error, return empty array
+      if (res.status === 401 || !res.ok) return [];
+      
+      // Assuming the API returns { purchased_adventure_ids: string[] } or similar
+      // For now, let's assume it returns a list of purchased items or IDs
+      // Adjust based on actual API response structure if known
+      const data = await res.json();
+      return Array.isArray(data) ? data : (data.purchased_ids || []); 
+    },
+    checkUpdate: async (id: string, localVersion: number): Promise<UpdateCheckResponse> => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${id}/check-update/${localVersion}/`, {
+        headers: getHeaders()
+      });
+      if (!res.ok) return { update_available: false };
+      return res.json();
+    },
+    getDownloadUrl: async (id: string): Promise<DownloadInfo> => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${id}/download/`, {
+        headers: getHeaders()
+      });
+      if (!res.ok) throw new Error("Failed to get download URL");
       return res.json();
     }
   },
