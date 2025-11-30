@@ -4,6 +4,7 @@ import { ArrowLeft, Settings, Map, Camera, Volume2, Terminal, Lock, CreditCard }
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useLanguage } from "@/hooks/use-language";
 
 // Mock Backend Data for Product IDs
 const MOCK_PRODUCT_DB: Record<string, { appleId: string; googleId: string; name: string; price: string }> = {
@@ -32,7 +33,7 @@ export default function StoryPlayer() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   const token = params.get("token");
-  // We use the 'id' from the URL path as the adventure ID
+  const { t } = useLanguage();
   
   const [loading, setLoading] = useState(true);
   const [textIndex, setTextIndex] = useState(0);
@@ -194,13 +195,13 @@ export default function StoryPlayer() {
               onClick={handleChoice}
               className="h-14 bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-sm whitespace-normal leading-tight"
            >
-             Investigate the noise
+             {t("story.investigate")}
            </Button>
            <Button 
               onClick={handleChoice}
               className="h-14 bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-sm whitespace-normal leading-tight"
            >
-             Stay hidden
+             {t("story.stayHidden")}
            </Button>
         </div>
 
@@ -209,13 +210,13 @@ export default function StoryPlayer() {
              <div className="p-3 rounded-full bg-white/5 border border-white/10">
                <Map className="w-5 h-5" />
              </div>
-             <span className="text-[10px] uppercase tracking-wider">Map</span>
+             <span className="text-[10px] uppercase tracking-wider">{t("story.map")}</span>
            </button>
            <button className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
              <div className="p-3 rounded-full bg-white/5 border border-white/10">
                <Camera className="w-5 h-5" />
              </div>
-             <span className="text-[10px] uppercase tracking-wider">Scan QR</span>
+             <span className="text-[10px] uppercase tracking-wider">{t("story.scanQr")}</span>
            </button>
         </div>
       </div>
@@ -247,7 +248,7 @@ export default function StoryPlayer() {
                  animate={{ opacity: 1, scale: 1 }}
                  className="bg-green-500/20 border border-green-500/50 text-green-400 p-3 rounded-lg text-center text-sm font-bold"
                >
-                 Purchase Successful!
+                 {t("story.purchaseSuccess")}
                </motion.div>
              )}
           </div>
@@ -258,7 +259,7 @@ export default function StoryPlayer() {
                onClick={handleConfirmPurchase}
                disabled={isProcessingPurchase || purchaseStatus === "success"}
             >
-              {isProcessingPurchase ? "Contacting App Store..." : `Pay ${productData?.price}`}
+              {isProcessingPurchase ? t("story.contactingStore") : `${t("story.pay")} ${productData?.price}`}
             </Button>
             <Button 
                variant="ghost" 
@@ -266,7 +267,7 @@ export default function StoryPlayer() {
                onClick={() => setShowPurchaseModal(false)}
                disabled={isProcessingPurchase}
             >
-              Cancel
+              {t("story.cancel")}
             </Button>
           </DialogFooter>
         </DialogContent>

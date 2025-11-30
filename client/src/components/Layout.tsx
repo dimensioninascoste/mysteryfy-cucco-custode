@@ -1,10 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 import { Compass, Home, User, Menu } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const isPlayer = location.includes("/play");
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-0 sm:p-4">
@@ -18,19 +20,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/dashboard">
               <a className={`flex flex-col items-center gap-1 transition-colors ${location === '/dashboard' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
                 <Home className="w-5 h-5" />
-                <span className="text-[10px] font-medium uppercase tracking-wider">Home</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider">{t("nav.home")}</span>
               </a>
             </Link>
             <Link href="/explore">
               <a className={`flex flex-col items-center gap-1 transition-colors ${location === '/explore' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
                 <Compass className="w-5 h-5" />
-                <span className="text-[10px] font-medium uppercase tracking-wider">Explore</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider">{t("nav.explore")}</span>
               </a>
             </Link>
             <Link href="/profile">
               <a className={`flex flex-col items-center gap-1 transition-colors ${location === '/profile' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
                 <User className="w-5 h-5" />
-                <span className="text-[10px] font-medium uppercase tracking-wider">Profile</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider">{t("nav.profile")}</span>
               </a>
             </Link>
           </nav>

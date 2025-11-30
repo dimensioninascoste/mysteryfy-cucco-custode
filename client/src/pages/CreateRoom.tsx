@@ -4,12 +4,14 @@ import { ArrowLeft, Copy, Share2, Users, Play } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function CreateRoom() {
   const [location, setLocation] = useLocation();
   const [players, setPlayers] = useState([
     { id: 1, name: "Detective You (Host)", avatar: "🕵️‍♂️" }
   ]);
+  const { t } = useLanguage();
   
   // Mock players joining
   useEffect(() => {
@@ -37,13 +39,13 @@ export default function CreateRoom() {
             <ArrowLeft className="w-6 h-6" />
           </Button>
         </Link>
-        <h1 className="text-2xl font-display font-bold text-white">Lobby</h1>
+        <h1 className="text-2xl font-display font-bold text-white">{t("multiplayer.lobby")}</h1>
       </div>
 
       <div className="space-y-6 flex-1">
         {/* Room Code Card */}
         <div className="text-center space-y-4">
-          <p className="text-muted-foreground text-sm uppercase tracking-widest">Room Code</p>
+          <p className="text-muted-foreground text-sm uppercase tracking-widest">{t("multiplayer.roomCode")}</p>
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -52,10 +54,10 @@ export default function CreateRoom() {
             <h2 className="text-5xl font-mono font-bold text-primary tracking-[0.2em] neon-glow mb-4">{roomCode}</h2>
             <div className="flex justify-center gap-3">
               <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/5 text-white" onClick={copyCode}>
-                <Copy className="w-4 h-4 mr-2" /> Copy
+                <Copy className="w-4 h-4 mr-2" /> {t("multiplayer.copy")}
               </Button>
               <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/5 text-white">
-                <Share2 className="w-4 h-4 mr-2" /> Share
+                <Share2 className="w-4 h-4 mr-2" /> {t("multiplayer.share")}
               </Button>
             </div>
           </motion.div>
@@ -64,8 +66,8 @@ export default function CreateRoom() {
         {/* Players List */}
         <div className="space-y-3">
           <div className="flex justify-between items-end">
-             <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Team ({players.length}/4)</h3>
-             {players.length < 2 && <span className="text-xs text-primary animate-pulse">Waiting for players...</span>}
+             <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{t("multiplayer.team")} ({players.length}/4)</h3>
+             {players.length < 2 && <span className="text-xs text-primary animate-pulse">{t("multiplayer.waitingForPlayers")}</span>}
           </div>
           
           <div className="grid gap-3">
@@ -82,7 +84,7 @@ export default function CreateRoom() {
                 </div>
                 <div className="flex-1">
                   <p className="text-white font-medium">{player.name}</p>
-                  <p className="text-xs text-muted-foreground">{i === 0 ? "Host" : "Guest"}</p>
+                  <p className="text-xs text-muted-foreground">{i === 0 ? t("multiplayer.host") : t("multiplayer.guest")}</p>
                 </div>
                 <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_theme('colors.green.500')]" />
               </motion.div>
@@ -105,7 +107,7 @@ export default function CreateRoom() {
         disabled={players.length < 2}
         onClick={() => setLocation('/play/1')}
       >
-        <Play className="w-5 h-5 mr-2 fill-current" /> Start Adventure
+        <Play className="w-5 h-5 mr-2 fill-current" /> {t("multiplayer.startAdventure")}
       </Button>
     </div>
   );

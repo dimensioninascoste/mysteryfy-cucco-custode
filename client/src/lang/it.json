@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "MYSTERYFY",
+    "subtitle": "Svela la verità."
+  },
+  "auth": {
+    "signInApple": "Accedi con Apple",
+    "signInGoogle": "Accedi con Google",
+    "continueWith": "O continua con",
+    "createAccount": "Crea Account",
+    "terms": "Continuando, accetti i nostri Termini di Servizio e la Privacy Policy."
+  },
+  "nav": {
+    "home": "Home",
+    "explore": "Esplora",
+    "profile": "Profilo"
+  },
+  "dashboard": {
+    "cases": "Casi",
+    "selectAssignment": "Seleziona il tuo prossimo incarico.",
+    "featuredCase": "Caso in Evidenza",
+    "availableNow": "Disponibili Ora",
+    "joinParty": "Unisciti",
+    "premium": "Premium",
+    "free": "Gratis",
+    "level": "LVL"
+  },
+  "story": {
+    "playSolo": "Gioca da Solo",
+    "createParty": "Crea Gruppo (Multiplayer)",
+    "unlockFor": "Sblocca per",
+    "premiumCase": "Caso Premium",
+    "freeCase": "Caso Gratuito",
+    "fullAccess": "Accesso Completo",
+    "lifetime": "A Vita",
+    "confirmPurchase": "Conferma Acquisto",
+    "processing": "Elaborazione...",
+    "cancel": "Annulla",
+    "purchaseSuccess": "Acquisto Riuscito!",
+    "contactingStore": "Contattando lo Store...",
+    "pay": "Paga",
+    "investigate": "Investiga il rumore",
+    "stayHidden": "Rimani nascosto",
+    "map": "Mappa",
+    "scanQr": "Scansiona QR"
+  },
+  "multiplayer": {
+    "lobby": "Lobby",
+    "roomCode": "Codice Stanza",
+    "copy": "Copia",
+    "share": "Condividi",
+    "team": "Squadra",
+    "waitingForPlayers": "In attesa di giocatori...",
+    "host": "Host",
+    "guest": "Ospite",
+    "startAdventure": "Inizia Avventura",
+    "joinParty": "Unisciti al Gruppo",
+    "enterCode": "Inserisci Codice Stanza",
+    "askHost": "Chiedi all'host il codice di 5 caratteri",
+    "joinAdventure": "Unisciti all'Avventura",
+    "invalidCode": "Formato codice non valido",
+    "roomNotFound": "Stanza non trovata"
+  },
+  "profile": {
+    "title": "Profilo",
+    "general": "Generale",
+    "notifications": "Notifiche",
+    "soundEffects": "Effetti Sonori",
+    "language": "Lingua",
+    "account": "Account",
+    "restorePurchases": "Ripristina Acquisti",
+    "privacyPolicy": "Privacy Policy",
+    "logOut": "Esci",
+    "developerInfo": "Info Sviluppatore",
+    "backendConnected": "Backend Connesso"
+  }
+}

@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import generatedBg from "@assets/generated_images/dark_noir_mysterious_background_with_fog_and_neon.png";
 import { Apple, Mail } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 // Mock Google Icon since Lucide doesn't have it
 const GoogleIcon = () => (
@@ -14,6 +15,7 @@ const GoogleIcon = () => (
 
 export default function Auth() {
   const [, setLocation] = useLocation();
+  const { t } = useLanguage();
 
   const handleLogin = () => {
     setLocation("/dashboard");
@@ -38,10 +40,10 @@ export default function Auth() {
           className="text-center space-y-2"
         >
           <h1 className="text-5xl font-display font-bold text-white tracking-tighter drop-shadow-lg">
-            MYSTERYFY
+            {t("app.title")}
           </h1>
           <p className="text-muted-foreground text-lg font-light tracking-wide">
-            Unravel the truth.
+            {t("app.subtitle")}
           </p>
         </motion.div>
 
@@ -57,7 +59,7 @@ export default function Auth() {
             onClick={handleLogin}
           >
             <Apple className="mr-2 h-5 w-5" />
-            Sign in with Apple
+            {t("auth.signInApple")}
           </Button>
           <Button 
             variant="outline" 
@@ -65,7 +67,7 @@ export default function Auth() {
             onClick={handleLogin}
           >
             <GoogleIcon />
-            <span className="ml-2">Sign in with Google</span>
+            <span className="ml-2">{t("auth.signInGoogle")}</span>
           </Button>
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
@@ -73,7 +75,7 @@ export default function Auth() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t("auth.continueWith")}
               </span>
             </div>
           </div>
@@ -82,12 +84,12 @@ export default function Auth() {
             onClick={handleLogin}
           >
             <Mail className="mr-2 h-5 w-5" />
-            Create Account
+            {t("auth.createAccount")}
           </Button>
         </motion.div>
 
         <p className="text-center text-xs text-muted-foreground">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          {t("auth.terms")}
         </p>
       </div>
     </div>

@@ -11,6 +11,7 @@ import StoryPlayer from "@/pages/StoryPlayer";
 import CreateRoom from "@/pages/CreateRoom";
 import JoinRoom from "@/pages/JoinRoom";
 import Profile from "@/pages/Profile";
+import { LanguageProvider } from "@/hooks/use-language";
 
 function Router() {
   return (
@@ -32,8 +33,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster />
-      <Router />
+      <LanguageProvider>
+        <Toaster />
+        <Router />
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

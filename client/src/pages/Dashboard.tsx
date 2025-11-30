@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Lock, Users, MapPin, Clock, Star, UserPlus } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 
 // Mock Data
 const STORIES = [
@@ -44,29 +45,31 @@ const STORIES = [
 ];
 
 export default function Dashboard() {
+  const { t } = useLanguage();
+
   return (
     <div className="pb-24 px-6 pt-12 space-y-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-display font-bold text-white">Cases</h2>
-          <p className="text-muted-foreground text-sm">Select your next assignment.</p>
+          <h2 className="text-2xl font-display font-bold text-white">{t("dashboard.cases")}</h2>
+          <p className="text-muted-foreground text-sm">{t("dashboard.selectAssignment")}</p>
         </div>
         <div className="flex gap-2">
           <Link href="/join-room">
             <Button size="sm" variant="outline" className="h-9 border-white/10 bg-white/5 hover:bg-white/10 text-xs">
-              <UserPlus className="w-3 h-3 mr-2" /> Join Party
+              <UserPlus className="w-3 h-3 mr-2" /> {t("dashboard.joinParty")}
             </Button>
           </Link>
           <div className="h-9 px-3 rounded-md bg-primary/20 border border-primary/50 flex items-center justify-center text-primary font-bold text-xs">
-            LVL 5
+            {t("dashboard.level")} 5
           </div>
         </div>
       </div>
 
       {/* Featured Carousel (Mock) */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Featured Case</h3>
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{t("dashboard.featuredCase")}</h3>
         <Link href={`/story/${STORIES[0].id}`}>
           <motion.div 
             whileHover={{ scale: 1.02 }}
@@ -78,7 +81,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-end">
                 <div>
                   <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/80 mb-2 border-0">
-                    <Star className="w-3 h-3 mr-1 fill-current" /> Premium
+                    <Star className="w-3 h-3 mr-1 fill-current" /> {t("dashboard.premium")}
                   </Badge>
                   <h3 className="text-xl font-display font-bold text-white leading-none mb-1">{STORIES[0].title}</h3>
                   <div className="flex items-center text-xs text-gray-300 gap-3 mt-2">
@@ -94,7 +97,7 @@ export default function Dashboard() {
 
       {/* List */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Available Now</h3>
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{t("dashboard.availableNow")}</h3>
         <div className="grid gap-4">
           {STORIES.slice(1).map((story, i) => (
             <Link key={story.id} href={`/story/${story.id}`}>

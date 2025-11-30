@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ArrowLeft, Play, Users, Share2, Clock, MapPin, Star, Lock, CreditCard } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/hooks/use-language";
 
 // Reusing mock data for simplicity
 const STORIES = {
@@ -51,6 +52,7 @@ export default function StoryDetail() {
   const story = STORIES[id as keyof typeof STORIES] || STORIES["1"];
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const { t } = useLanguage();
 
   const handlePlay = () => {
     if (story.type === "Premium") {
@@ -90,7 +92,7 @@ export default function StoryDetail() {
               ${story.type === 'Premium' ? 'bg-secondary text-secondary-foreground' : 'bg-primary/20 text-primary'} 
               hover:bg-opacity-80 border border-white/10 backdrop-blur-md
             `}>
-              {story.type === 'Premium' ? 'Premium Case' : 'Free Case'}
+              {story.type === 'Premium' ? t("story.premiumCase") : t("story.freeCase")}
             </Badge>
             <div className="flex items-center text-yellow-500 text-sm font-bold bg-black/50 px-2 py-1 rounded backdrop-blur-md">
               <Star className="w-4 h-4 fill-current mr-1" /> {story.rating}
@@ -124,15 +126,15 @@ export default function StoryDetail() {
             onClick={handlePlay}
           >
             {story.type === 'Premium' ? (
-               <><Lock className="w-5 h-5 mr-2" /> Unlock for {story.price}</>
+               <><Lock className="w-5 h-5 mr-2" /> {t("story.unlockFor")} {story.price}</>
             ) : (
-               <><Play className="w-5 h-5 mr-2 fill-current" /> Play Solo</>
+               <><Play className="w-5 h-5 mr-2 fill-current" /> {t("story.playSolo")}</>
             )}
           </Button>
           
           <Link href="/create-room">
             <Button variant="outline" className="w-full h-12 border-white/10 bg-white/5 hover:bg-white/10 hover:text-white text-muted-foreground rounded-xl mt-3">
-              <Users className="w-5 h-5 mr-2" /> Create Party (Multiplayer)
+              <Users className="w-5 h-5 mr-2" /> {t("story.createParty")}
             </Button>
           </Link>
         </div>
@@ -155,7 +157,7 @@ export default function StoryDetail() {
                    </div>
                    <div>
                       <p className="font-bold text-white">{story.title}</p>
-                      <p className="text-xs text-muted-foreground">Full Access • Lifetime</p>
+                      <p className="text-xs text-muted-foreground">{t("story.fullAccess")} • {t("story.lifetime")}</p>
                    </div>
                 </div>
                 <span className="font-mono text-lg font-bold text-white">{story.price}</span>
@@ -167,14 +169,14 @@ export default function StoryDetail() {
                onClick={handlePurchase}
                disabled={processing}
             >
-              {processing ? "Processing..." : "Confirm Purchase"}
+              {processing ? t("story.processing") : t("story.confirmPurchase")}
             </Button>
             <Button 
                variant="ghost" 
                className="w-full text-muted-foreground hover:text-white"
                onClick={() => setShowPurchaseModal(false)}
             >
-              Cancel
+              {t("story.cancel")}
             </Button>
           </DialogFooter>
         </DialogContent>

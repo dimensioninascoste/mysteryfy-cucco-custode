@@ -1,7 +1,12 @@
 import { useLocation } from "wouter";
 
-// Updated with the real backend URL provided by the user
-export const API_BASE_URL = "https://gta.mysteryfy.com";
+// Default from specs, but can be overridden
+export const API_BASE_URL = localStorage.getItem("mysteryfy_api_url") || "https://gta.mysteryfy.com";
+
+export const setApiUrl = (url: string) => {
+  localStorage.setItem("mysteryfy_api_url", url);
+  window.location.reload();
+};
 
 // Helper for headers
 const getHeaders = () => {
@@ -15,7 +20,7 @@ const getHeaders = () => {
 export const api = {
   auth: {
     verify: async (idToken: string) => {
-      const res = await fetch(`${API_BASE_URL}/auth/verify`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: idToken })
@@ -24,8 +29,8 @@ export const api = {
     }
   },
   stories: {
-    getVersion: async (storyId: string) => {
-      const res = await fetch(`${API_BASE_URL}/stories/${storyId}/version.json`, {
+    getVersion: async (storyId: string, version: string) => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${storyId}/check-update/${version}/`, {
         headers: getHeaders()
       });
       return res.json();
@@ -41,15 +46,15 @@ export const api = {
     }
   },
   rooms: {
-    create: async () => {
-      const res = await fetch(`${API_BASE_URL}/rooms/create`, {
+    create: async (storyId: string) => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${storyId}/multiplayer/rooms/`, {
         method: "POST",
         headers: getHeaders()
       });
       return res.json();
     },
-    join: async (roomCode: string) => {
-      const res = await fetch(`${API_BASE_URL}/rooms/join`, {
+    join: async (storyId: string, roomCode: string) => {
+      const res = await fetch(`${API_BASE_URL}//api/v1/adventures/${storyId}/multiplayer/rooms/${roomCode}/join/`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ roomCode })
@@ -59,13 +64,13 @@ export const api = {
   },
   store: {
     getProducts: async (storyId: string) => {
-      const res = await fetch(`${API_BASE_URL}/store/products/${storyId}`, {
+      const res = await fetch(`${API_BASE_URL}//api/v1/adventures/${storyId}/`, {
         headers: getHeaders()
       });
       return res.json();
     },
-    verifyPurchase: async (receipt: string, userId: string, productId: string) => {
-      const res = await fetch(`${API_BASE_URL}/purchases/verify`, {
+    verifyPurchase: async (storyId: string, receipt: string, userId: string, productId: string) => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/adventures/${storyId}/purchase/`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ receipt, userId, productId })

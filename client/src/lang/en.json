@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "MYSTERYFY",
+    "subtitle": "Unravel the truth."
+  },
+  "auth": {
+    "signInApple": "Sign in with Apple",
+    "signInGoogle": "Sign in with Google",
+    "continueWith": "Or continue with",
+    "createAccount": "Create Account",
+    "terms": "By continuing, you agree to our Terms of Service and Privacy Policy."
+  },
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "cases": "Cases",
+    "selectAssignment": "Select your next assignment.",
+    "featuredCase": "Featured Case",
+    "availableNow": "Available Now",
+    "joinParty": "Join Party",
+    "premium": "Premium",
+    "free": "Free",
+    "level": "LVL"
+  },
+  "story": {
+    "playSolo": "Play Solo",
+    "createParty": "Create Party (Multiplayer)",
+    "unlockFor": "Unlock for",
+    "premiumCase": "Premium Case",
+    "freeCase": "Free Case",
+    "fullAccess": "Full Access",
+    "lifetime": "Lifetime",
+    "confirmPurchase": "Confirm Purchase",
+    "processing": "Processing...",
+    "cancel": "Cancel",
+    "purchaseSuccess": "Purchase Successful!",
+    "contactingStore": "Contacting App Store...",
+    "pay": "Pay",
+    "investigate": "Investigate the noise",
+    "stayHidden": "Stay hidden",
+    "map": "Map",
+    "scanQr": "Scan QR"
+  },
+  "multiplayer": {
+    "lobby": "Lobby",
+    "roomCode": "Room Code",
+    "copy": "Copy",
+    "share": "Share",
+    "team": "Team",
+    "waitingForPlayers": "Waiting for players...",
+    "host": "Host",
+    "guest": "Guest",
+    "startAdventure": "Start Adventure",
+    "joinParty": "Join Party",
+    "enterCode": "Enter Room Code",
+    "askHost": "Ask the host for the 5-character code",
+    "joinAdventure": "Join Adventure",
+    "invalidCode": "Invalid code format",
+    "roomNotFound": "Room not found"
+  },
+  "profile": {
+    "title": "Profile",
+    "general": "General",
+    "notifications": "Notifications",
+    "soundEffects": "Sound Effects",
+    "language": "Language",
+    "account": "Account",
+    "restorePurchases": "Restore Purchases",
+    "privacyPolicy": "Privacy Policy",
+    "logOut": "Log Out",
+    "developerInfo": "Developer Info",
+    "backendConnected": "Backend Connected"
+  }
+}

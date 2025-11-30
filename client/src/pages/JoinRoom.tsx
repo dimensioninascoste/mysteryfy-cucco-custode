@@ -4,20 +4,22 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function JoinRoom() {
   const [, setLocation] = useLocation();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const { t } = useLanguage();
 
   const handleJoin = () => {
     if (code.length < 5) {
-      setError("Invalid code format");
+      setError(t("multiplayer.invalidCode"));
       return;
     }
     // Mock validation
     if (code.toUpperCase() === "ERROR") {
-      setError("Room not found");
+      setError(t("multiplayer.roomNotFound"));
     } else {
       setLocation("/play/1");
     }
@@ -33,13 +35,13 @@ export default function JoinRoom() {
             <ArrowLeft className="w-6 h-6" />
           </Button>
         </Link>
-        <h1 className="text-2xl font-display font-bold text-white">Join Party</h1>
+        <h1 className="text-2xl font-display font-bold text-white">{t("multiplayer.joinParty")}</h1>
       </div>
 
       <div className="flex-1 flex flex-col justify-center space-y-8">
         <div className="space-y-2 text-center">
-           <h2 className="text-lg text-white font-medium">Enter Room Code</h2>
-           <p className="text-muted-foreground text-sm">Ask the host for the 5-character code.</p>
+           <h2 className="text-lg text-white font-medium">{t("multiplayer.enterCode")}</h2>
+           <p className="text-muted-foreground text-sm">{t("multiplayer.askHost")}</p>
         </div>
 
         <div className="space-y-4">
@@ -71,7 +73,7 @@ export default function JoinRoom() {
           className="w-full h-14 text-lg font-semibold bg-white text-black hover:bg-gray-200 rounded-xl"
           onClick={handleJoin}
         >
-          Join Adventure <ArrowRight className="ml-2 w-5 h-5" />
+          {t("multiplayer.joinAdventure")} <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
     </div>
